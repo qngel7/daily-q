@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>daily · Q.</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0D0D0F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+
+  <style>
+    :root {
+      --bg:        #0D0D0F;
+      --bg-card:   #141416;
+      --bg-hover:  #1C1C1F;
+      --bg-input:  #1A1A1D;
+      --b:         rgba(255,255,255,0.07);
+      --b2:        rgba(255,255,255,0.13);
+      --t1:        #EFEFEF;
+      --t2:        #7E7E96;
+      --t3:        #45454F;
+      --accent:    #00C9A7;
+      --accent-bg: rgba(0,201,167,0.10);
+      --accent-br: rgba(0,201,167,0.22);
+      --ok:        #22C55E;
+      --warn:      #F59E0B;
+      --err:       #EF4444;
+      --r:         8px;
+      --mono:      'JetBrains Mono', monospace;
+      --sans:      'Noto Sans KR', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { background: var(--bg); }
+
+    body {
+      background: var(--bg);
+      color: var(--t1);
+      font-family: var(--sans);
+      font-weight: 300;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @keyframes rot { to { transform: rotate(360deg); } }
+    .spin-icon { animation: rot 1s linear infinite; }
+    .rf-btn.spin i { animation: rot .65s linear infinite; }
+
+    /* ═══════════════════════════════
+       HEADER — 공통
+    ═══════════════════════════════ */
+    .hdr {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--b);
+    }
+
+    .hdr-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px; gap: 12px;
+    }
+    .logo-mark {
+      font-family: var(--mono); font-weight: 600;
+      font-size: 18px; letter-spacing: -0.5px; color: var(--t1);
+      white-space: nowrap;
+    }
+    .logo-mark em { color: var(--accent); font-style: normal; }
+    .logo-sub {
+      font-family: var(--mono); font-size: 8px;
+      letter-spacing: .18em; color: var(--t3); margin-top: 1px;
+    }
+
+    .hdr-mid { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: center; }
+    .focus-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; background: var(--accent-bg);
+      border: 1px solid var(--accent-br); border-radius: 20px;
+      white-space: nowrap;
+    }
+    .focus-pre  { font-size: 9px; color: var(--accent); opacity: .65; font-family: var(--mono); }
+    .focus-text { font-size: 12px; font-weight: 500; color: var(--accent); }
+
+    .status-row { display: flex; gap: 10px; flex-shrink: 0; }
+    .st-item { display: flex; align-items: center; gap: 4px; font-size: 10px; font-family: var(--mono); color: var(--t2); }
+    .st-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--t3); flex-shrink: 0;
+      transition: background .4s, box-shadow .4s;
+    }
+    .st-dot.ok   { background: var(--ok);   box-shadow: 0 0 7px rgba(34,197,94,.55); }
+    .st-dot.warn { background: var(--warn);  box-shadow: 0 0 7px rgba(245,158,11,.55); }
+    .st-dot.err  { background: var(--err);   box-shadow: 0 0 7px rgba(239,68,68,.55); }
+
+    .clock-wrap { text-align: right; flex-shrink: 0; }
+    .clock-time { font-family: var(--mono); font-weight: 500; font-size: 17px; letter-spacing: -.5px; color: var(--t1); }
+    .clock-date { font-family: var(--mono); font-size: 9px; color: var(--t2); margin-top: 1px; }
+
+    /* news source tabs */
+    .ntab-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px; border-top: 1px solid var(--b);
+      overflow-x: auto; scrollbar-width: none;
+      gap: 6px;
+    }
+    .ntab-row::-webkit-scrollbar { display: none; }
+    .ntabs { display: flex; gap: 3px; flex-shrink: 0; }
+    .ntab {
+      padding: 5px 11px; font-size: 12px; font-family: var(--sans); font-weight: 300;
+      color: var(--t2); background: transparent; border: 1px solid transparent;
+      border-radius: 20px; cursor: pointer; transition: all .15s; white-space: nowrap;
+    }
+    .ntab:hover { color: var(--t1); }
+    .ntab.on    { color: var(--t1); background: var(--bg-card); border-color: var(--b2); }
+    .rf-btn {
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+      font-size: 11px; font-family: var(--mono); color: var(--t3);
+      background: transparent; border: 1px solid var(--b);
+      border-radius: var(--r); padding: 5px 10px; cursor: pointer; transition: all .15s;
+    }
+    .rf-btn:hover { color: var(--t2); border-color: var(--b2); }
+
+    /* ═══════════════════════════════
+       DESKTOP LAYOUT  ≥ 768px
+    ═══════════════════════════════ */
+    @media (min-width: 768px) {
+      html, body { height: 100%; overflow: hidden; }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 310px;
+        height: calc(100vh - 90px); /* header height */
+      }
+
+      .news-panel {
+        display: flex; flex-direction: column;
+        border-right: 1px solid var(--b); overflow: hidden;
+      }
+      .news-feed {
+        flex: 1; overflow-y: auto;
+        scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.08) transparent;
+      }
+      .news-feed::-webkit-scrollbar { width: 3px; }
+      .news-feed::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 2px; }
+
+      .sidebar {
+        display: flex; flex-direction: column;
+        overflow-y: auto;
+        scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.06) transparent;
+      }
+      .sidebar::-webkit-scrollbar { width: 3px; }
+      .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.06); border-radius: 2px; }
+
+      /* hide mobile-only elements */
+      .bnav { display: none; }
+      .mob-sec-label { display: none; }
+    }
+
+    /* ═══════════════════════════════
+       MOBILE LAYOUT  < 768px
+    ═══════════════════════════════ */
+    @media (max-width: 767px) {
+      body { padding-bottom: 64px; } /* room for bnav */
+
+      /* collapse focus pill on tiny screens */
+      .hdr-mid { justify-content: flex-start; }
+      .focus-pre { display: none; }
+      .focus-pill { padding: 3px 10px; }
+      .focus-text { font-size: 11px; }
+
+      /* hide desktop status labels on very small screens */
+      .st-item span:last-child { display: none; }
+
+      .clock-date { display: none; }
+
+      .layout {
+        display: block; /* single column */
+      }
+
+      .news-panel { border-right: none; }
+      .news-feed  { overflow: visible; height: auto; }
+      .sidebar    { overflow: visible; }
+
+      /* mobile sections: show/hide via JS */
+      .mob-sec { display: none; }
+      .mob-sec.active { display: block; }
+
+      /* mobile section label */
+      .mob-sec-label {
+        display: block;
+        font-size: 9px; font-family: var(--mono); font-weight: 600;
+        letter-spacing: .15em; text-transform: uppercase; color: var(--t3);
+        padding: 14px 16px 6px;
+      }
+
+      /* BOTTOM NAV */
+      .bnav {
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+        display: flex;
+        background: rgba(13,13,15,.97);
+        border-top: 1px solid var(--b);
+        padding-bottom: env(safe-area-inset-bottom, 0);
+      }
+      .bnav-btn {
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; gap: 3px;
+        padding: 10px 0;
+        background: transparent; border: none; cursor: pointer;
+        color: var(--t3); transition: color .15s;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .bnav-btn i { font-size: 20px; }
+      .bnav-btn span { font-size: 10px; font-family: var(--mono); }
+      .bnav-btn.on { color: var(--accent); }
+
+      /* larger touch targets */
+      .ni { padding: 13px 16px; }
+      .ni-title { font-size: 14px; }
+      .ci { padding: 8px 0; }
+      .ci input[type=checkbox] { width: 16px; height: 16px; }
+      .ci-text { font-size: 13px; }
+      .lk { padding: 10px 8px; font-size: 12px; min-height: 44px; }
+    }
+
+    /* ═══════════════════════════════
+       SHARED COMPONENTS
+    ═══════════════════════════════ */
+    .sec { padding: 14px 18px; border-bottom: 1px solid var(--b); }
+    .sec-label {
+      font-size: 9px; font-family: var(--mono); font-weight: 600;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: var(--t3); margin-bottom: 9px;
+    }
+
+    /* news items */
+    .ni { border-bottom: 1px solid var(--b); cursor: pointer; transition: background .1s; }
+    .ni:hover { background: var(--bg-hover); }
+    .ni:last-child { border-bottom: none; }
+    .ni-title {
+      font-size: 13px; font-weight: 300; color: var(--t1); line-height: 1.5;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px;
+    }
+    .ni-meta { display: flex; align-items: center; gap: 7px; font-size: 10px; color: var(--t3); font-family: var(--mono); }
+    .ni-src  { padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 500; }
+
+    .feed-state {
+      padding: 48px 20px; text-align: center;
+      color: var(--t3); font-size: 12px; font-family: var(--mono); line-height: 1.8;
+    }
+    .feed-state i { font-size: 22px; display: block; margin-bottom: 10px; }
+
+    /* checklist */
+    .ci {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 5px 0; cursor: pointer;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .ci:last-child { border-bottom: none; }
+    .ci input[type=checkbox] { margin-top: 2px; width: 13px; height: 13px; flex-shrink: 0; accent-color: var(--accent); cursor: pointer; }
+    .ci-text { flex: 1; font-size: 12px; color: var(--t1); line-height: 1.45; user-select: none; }
+    .ci-dur  { font-size: 10px; color: var(--t3); font-family: var(--mono); white-space: nowrap; margin-top: 2px; }
+    .ci.done .ci-text { text-decoration: line-through; color: var(--t3); }
+
+    .prog { margin-top: 10px; }
+    .prog-bar  { height: 2px; background: rgba(255,255,255,.07); border-radius: 1px; overflow: hidden; margin-bottom: 4px; }
+    .prog-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: width .4s ease; }
+    .prog-meta { font-size: 10px; color: var(--t3); font-family: var(--mono); text-align: right; }
+
+    /* links */
+    .link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .lk {
+      padding: 7px 9px; background: var(--bg-card); border: 1px solid var(--b);
+      border-radius: var(--r); font-size: 11px; color: var(--t2);
+      display: flex; align-items: center; gap: 5px;
+      cursor: pointer; transition: all .15s;
+      font-family: var(--sans); font-weight: 300; text-align: left; width: 100%;
+    }
+    .lk:hover { background: var(--bg-hover); border-color: var(--b2); color: var(--t1); }
+    .lk i { font-size: 14px; color: var(--accent); flex-shrink: 0; }
+
+    /* week */
+    .week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+    .wday { border: 1px solid var(--b); border-radius: 6px; padding: 6px 3px; text-align: center; }
+    .wday.today { border-color: var(--accent-br); background: var(--accent-bg); }
+    .wday-name { font-size: 9px; font-family: var(--mono); color: var(--t3); margin-bottom: 4px; }
+    .wday.today .wday-name { color: var(--accent); }
+    .wday-tag { font-size: 8px; padding: 1px 3px; border-radius: 2px; line-height: 1.5; word-break: keep-all; }
+
+    /* memo */
+    .memo {
+      width: 100%; min-height: 90px;
+      background: var(--bg-input); border: 1px solid var(--b);
+      border-radius: var(--r); padding: 9px 11px;
+      font-size: 13px; color: var(--t1);
+      font-family: var(--sans); font-weight: 300;
+      resize: vertical; outline: none; line-height: 1.65;
+      transition: border-color .2s;
+    }
+    .memo:focus { border-color: var(--b2); }
+    .memo::placeholder { color: var(--t3); }
+    .memo-saved { font-size: 10px; color: var(--t3); font-family: var(--mono); text-align: right; margin-top: 4px; height: 14px; }
+
+    .foot {
+      padding: 12px 18px; font-size: 10px; font-family: var(--mono); color: var(--t3);
+      border-top: 1px solid var(--b);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<header class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="logo-mark">Q<em>.</em></div>
+      <div class="logo-sub">DAILY · DASHBOARD</div>
+    </div>
+
+    <div class="hdr-mid">
+      <div class="focus-pill">
+        <span class="focus-pre">오늘 학습</span>
+        <span class="focus-text" id="hdr-focus">—</span>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <div class="st-item"><div class="st-dot" id="cf-dot"></div><span id="cf-txt">CF</span></div>
+      <div class="st-item"><div class="st-dot" id="sb-dot"></div><span id="sb-txt">SB</span></div>
+    </div>
+
+    <div class="clock-wrap">
+      <div class="clock-time" id="clock-t">—</div>
+      <div class="clock-date" id="clock-d">—</div>
+    </div>
+  </div>
+
+  <!-- news source tabs (공통, 뉴스 섹션에서만 표시) -->
+  <div class="ntab-row" id="ntab-row">
+    <div class="ntabs">
+      <button class="ntab on" onclick="switchFeed(0)">🇰🇷 국내 IT</button>
+      <button class="ntab"    onclick="switchFeed(1)">🌐 해외·기술</button>
+      <button class="ntab"    onclick="switchFeed(2)">📋 법무·정책</button>
+      <button class="ntab"    onclick="switchFeed(3)">⚔️ 경쟁사</button>
+    </div>
+    <button class="rf-btn" id="rf-btn" onclick="reload()">
+      <i class="ti ti-refresh"></i><span class="d-only"> 새로고침</span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════ DESKTOP + MOBILE BODY ═══════ -->
+<div class="layout">
+
+  <!-- ── 뉴스 패널 ── -->
+  <div class="news-panel mob-sec active" id="sec-news">
+    <div class="news-feed" id="news-feed">
+      <div class="feed-state"><i class="ti ti-loader-2 spin-icon"></i>불러오는 중…</div>
+    </div>
+  </div>
+
+  <!-- ── 사이드바 ── -->
+  <div class="sidebar">
+
+    <!-- 체크리스트 -->
+    <div class="sec mob-sec" id="sec-check">
+      <div class="mob-sec-label">오늘의 루틴</div>
+      <div class="sec-label d-only">오늘의 루틴 체크리스트</div>
+      <div id="checklist"></div>
+      <div class="prog">
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="prog-meta" id="prog-meta">0 / 13 완료</div>
+      </div>
+    </div>
+
+    <!-- 주간 포커스 -->
+    <div class="sec d-only">
+      <div class="sec-label">주간 포커스</div>
+      <div class="week-grid" id="week-grid"></div>
+    </div>
+
+    <!-- 바로가기 -->
+    <div class="sec mob-sec" id="sec-links">
+      <div class="mob-sec-label">바로가기</div>
+      <div class="sec-label d-only">바로가기</div>
+      <div class="link-grid">
+        <button class="lk" onclick="go('https://kipris.or.kr')">          <i class="ti ti-file-search"></i>KIPRIS 상표</button>
+        <button class="lk" onclick="go('https://www.law.go.kr')">         <i class="ti ti-scale"></i>법제처</button>
+        <button class="lk" onclick="go('https://dash.cloudflare.com')">   <i class="ti ti-cloud"></i>CF 대시보드</button>
+        <button class="lk" onclick="go('https://supabase.com/dashboard')"><i class="ti ti-database"></i>Supabase</button>
+        <button class="lk" onclick="go('https://q.co.kr')">               <i class="ti ti-world"></i>q.co.kr</button>
+        <button class="lk" onclick="go('https://github.com/qngel7')">     <i class="ti ti-brand-github"></i>GitHub</button>
+        <button class="lk" onclick="go('https://www.msit.go.kr')">        <i class="ti ti-antenna"></i>과기정통부</button>
+        <button class="lk" onclick="go('https://www.kcc.go.kr')">         <i class="ti ti-broadcast"></i>방통위</button>
+        <button class="lk" onclick="go('https://www.cloudflarestatus.com')"><i class="ti ti-activity"></i>CF 상태</button>
+        <button class="lk" onclick="go('https://status.supabase.com')">   <i class="ti ti-activity"></i>SB 상태</button>
+      </div>
+      <!-- 주간 포커스 (모바일에서는 링크 아래) -->
+      <div style="margin-top:16px">
+        <div class="sec-label">주간 포커스</div>
+        <div class="week-grid" id="week-grid-mob"></div>
+      </div>
+    </div>
+
+    <!-- 메모 -->
+    <div class="sec mob-sec" id="sec-memo">
+      <div class="mob-sec-label">오늘의 메모</div>
+      <div class="sec-label d-only">오늘의 메모</div>
+      <textarea class="memo" id="memo" placeholder="오늘 중요한 것, 아이디어, 할 일을 기록하세요…"></textarea>
+      <div class="memo-saved" id="memo-saved"></div>
+    </div>
+
+    <div class="foot d-only">
+      <span>daily.q.co.kr</span>
+      <span>큐닷주식회사 © 2026</span>
+    </div>
+
+  </div><!-- /sidebar -->
+</div><!-- /layout -->
+
+<!-- ═══════ MOBILE BOTTOM NAV ═══════ -->
+<nav class="bnav">
+  <button class="bnav-btn on" id="bn-news"  onclick="mobNav('news')"> <i class="ti ti-news"></i>      <span>뉴스</span></button>
+  <button class="bnav-btn"    id="bn-check" onclick="mobNav('check')"><i class="ti ti-checkbox"></i>  <span>루틴</span></button>
+  <button class="bnav-btn"    id="bn-links" onclick="mobNav('links')"><i class="ti ti-link"></i>      <span>링크</span></button>
+  <button class="bnav-btn"    id="bn-memo"  onclick="mobNav('memo')"> <i class="ti ti-pencil"></i>    <span>메모</span></button>
+</nav>
+
+<script>
+/* ── CONFIG ─────────────────────────────── */
+const DAYS    = ['일','월','화','수','목','금','토'];
+const FOCUSES = ['전략 리뷰','React 컴포넌트','Supabase RLS','법무·정책','명함 UX 설계','Workers·이메일','상표·도메인'];
+const WCOLORS = [
+  {bg:'rgba(255,255,255,.08)',  c:'#55555F'},
+  {bg:'rgba(0,201,167,.15)',    c:'#00C9A7'},
+  {bg:'rgba(0,201,167,.15)',    c:'#00C9A7'},
+  {bg:'rgba(96,165,250,.15)',   c:'#60A5FA'},
+  {bg:'rgba(167,139,250,.15)',  c:'#A78BFA'},
+  {bg:'rgba(0,201,167,.15)',    c:'#00C9A7'},
+  {bg:'rgba(251,191,36,.15)',   c:'#FBBF24'},
+];
+
+const CHECKLIST = [
+  ['네이버 IT·스타트업 뉴스 스캔',     '10분'],
+  ['X — #디지털신원 #도메인 타임라인', '10분'],
+  ['Cloudflare 상태 & Workers 공지',    '5분'],
+  ['Supabase 상태 & 릴리즈 노트',       '5분'],
+  ['30일 부트캠프 당일 챕터 학습',      '40분'],
+  ['실습 · 코드 or 설계 적용',          '20분'],
+  ['명함 앱 MVP 작업',                  '60분'],
+  ['법무·정책 이슈 체크',               '15분'],
+  ['Cloudflare Pages 배포 & 로그',      '15분'],
+  ['AI·LLM 뉴스 (Anthropic 등)',        '15분'],
+  ['통신·MVNO 정책 뉴스',               '10분'],
+  ['W3C DID / ETRI 업데이트',           '10분'],
+  ['내일 준비 & 메모 정리',             '10분'],
+];
+
+const FEEDS = [
+  [
+    {url:'https://feeds.feedburner.com/zdkorea',            name:'ZDNet KR', bg:'rgba(96,165,250,.15)',c:'#60A5FA'},
+    {url:'https://www.etnews.com/rss/',                     name:'전자신문', bg:'rgba(167,139,250,.15)',c:'#A78BFA'},
+    {url:'https://www.hankyung.com/feed/it',                name:'한경 IT',  bg:'rgba(0,201,167,.15)', c:'#00C9A7'},
+    {url:'https://www.chosun.com/arc/outboundfeeds/rss/category/economy/?outputType=xml', name:'조선비즈', bg:'rgba(251,191,36,.15)',c:'#FBBF24'},
+  ],
+  [
+    {url:'https://blog.cloudflare.com/rss/',                name:'CF Blog',  bg:'rgba(251,191,36,.15)', c:'#FBBF24'},
+    {url:'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml', name:'Verge AI', bg:'rgba(0,201,167,.15)',c:'#00C9A7'},
+    {url:'https://hnrss.org/frontpage',                     name:'HN Top',   bg:'rgba(255,255,255,.08)',c:'#8888A0'},
+    {url:'https://supabase.com/rss.xml',                    name:'Supabase', bg:'rgba(0,201,167,.12)', c:'#00C9A7'},
+  ],
+  [
+    {url:'https://www.law.go.kr/LSW/rss/lsRssService.do?menuId=1&searchGubun=1', name:'법제처',   bg:'rgba(239,68,68,.15)',  c:'#EF4444'},
+    {url:'https://www.kcc.go.kr/user.do?mode=rss',          name:'방통위',   bg:'rgba(96,165,250,.15)',c:'#60A5FA'},
+    {url:'https://www.msit.go.kr/bbs/rss.do?sCode=user&mPid=74&mId=75', name:'과기정통부',bg:'rgba(251,191,36,.15)',c:'#FBBF24'},
+  ],
+  [
+    {url:'https://feeds.feedburner.com/zdkorea',            name:'ZDNet KR', bg:'rgba(96,165,250,.15)',c:'#60A5FA'},
+    {url:'https://www.etnews.com/rss/',                     name:'전자신문', bg:'rgba(167,139,250,.15)',c:'#A78BFA'},
+    {url:'https://www.hankyung.com/feed/it',                name:'한경 IT',  bg:'rgba(0,201,167,.15)', c:'#00C9A7'},
+  ],
+];
+
+/* ── STATE ───────────────────────────────── */
+let cache   = [[], [], [], []];
+let curFeed = 0;
+let checks  = {};
+let memoTmr = null;
+const isMob = () => window.innerWidth < 768;
+
+/* ── KST ─────────────────────────────────── */
+function kst() {
+  const n = new Date();
+  return new Date(n.getTime() + (9 * 60 + n.getTimezoneOffset()) * 60000);
+}
+
+/* ── INIT ────────────────────────────────── */
+function init() {
+  try { checks = JSON.parse(localStorage.getItem('q.daily.v2') || '{}'); } catch(e) {}
+  const k = kst();
+  if (checks.__d !== k.toDateString()) checks = { __d: k.toDateString() };
+
+  try { const m = localStorage.getItem('q.daily.memo'); if (m) document.getElementById('memo').value = m; } catch(e) {}
+
+  const dow = k.getDay();
+  document.getElementById('hdr-focus').textContent = FOCUSES[dow];
+
+  const tick = () => {
+    const t = kst();
+    document.getElementById('clock-t').textContent =
+      t.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    document.getElementById('clock-d').textContent =
+      t.toLocaleDateString('ko-KR', {year:'numeric', month:'short', day:'numeric', weekday:'short'});
+  };
+  tick(); setInterval(tick, 1000);
+
+  document.getElementById('memo').addEventListener('input', () => {
+    clearTimeout(memoTmr);
+    document.getElementById('memo-saved').textContent = '';
+    memoTmr = setTimeout(() => {
+      try { localStorage.setItem('q.daily.memo', document.getElementById('memo').value); } catch(e) {}
+      document.getElementById('memo-saved').textContent = '저장됨';
+      setTimeout(() => { document.getElementById('memo-saved').textContent = ''; }, 2000);
+    }, 900);
+  });
+
+  renderChecklist();
+  renderWeek(dow, 'week-grid');
+  renderWeek(dow, 'week-grid-mob');
+  loadStatus();
+  loadFeed(0);
+}
+
+/* ── MOBILE NAV ──────────────────────────── */
+function mobNav(name) {
+  if (!isMob()) return;
+  // show/hide sections
+  document.querySelectorAll('.mob-sec').forEach(el => el.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+  // highlight bnav
+  ['news','check','links','memo'].forEach(n =>
+    document.getElementById('bn-' + n).classList.toggle('on', n === name)
+  );
+  // show news tabs row only in news section
+  document.getElementById('ntab-row').style.display = (name === 'news') ? '' : 'none';
+  // scroll to top
+  window.scrollTo(0, 0);
+}
+
+/* ── CHECKLIST ───────────────────────────── */
+function renderChecklist() {
+  const el = document.getElementById('checklist');
+  el.innerHTML = '';
+  CHECKLIST.forEach(([text, dur], i) => {
+    const done = !!checks[i];
+    const row  = document.createElement('div');
+    row.className = 'ci' + (done ? ' done' : '');
+    row.innerHTML = `<input type="checkbox" id="c${i}" ${done?'checked':''}><span class="ci-text">${text}</span><span class="ci-dur">${dur}</span>`;
+    row.querySelector('input').addEventListener('change', e => {
+      checks[i] = e.target.checked;
+      row.className = 'ci' + (e.target.checked ? ' done' : '');
+      try { localStorage.setItem('q.daily.v2', JSON.stringify(checks)); } catch(e) {}
+      updateProg();
+    });
+    el.appendChild(row);
+  });
+  updateProg();
+}
+
+function updateProg() {
+  const done = CHECKLIST.filter((_, i) => checks[i]).length;
+  const pct  = Math.round(done / CHECKLIST.length * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-meta').textContent = `${done} / ${CHECKLIST.length} 완료 (${pct}%)`;
+}
+
+/* ── WEEK VIEW ───────────────────────────── */
+function renderWeek(today, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  DAYS.forEach((d, i) => {
+    const b = WCOLORS[i];
+    const cell = document.createElement('div');
+    cell.className = 'wday' + (i === today ? ' today' : '');
+    cell.innerHTML = `<div class="wday-name">${d}</div><div class="wday-tag" style="background:${b.bg};color:${b.c}">${FOCUSES[i]}</div>`;
+    el.appendChild(cell);
+  });
+}
+
+/* ── STATUS APIS ─────────────────────────── */
+function loadStatus() {
+  _st('https://www.cloudflarestatus.com/api/v2/status.json', 'cf', 'CF');
+  _st('https://status.supabase.com/api/v2/status.json',      'sb', 'SB');
+}
+async function _st(url, pfx, label) {
+  try {
+    const r = await fetch(url, { cache:'no-cache' });
+    if (!r.ok) throw 0;
+    const d = await r.json();
+    const ok = d.status.indicator === 'none';
+    document.getElementById(pfx+'-dot').className = 'st-dot ' + (ok ? 'ok' : 'warn');
+    document.getElementById(pfx+'-txt').textContent = label + (ok ? ' 정상' : ' 이상');
+  } catch(e) {
+    document.getElementById(pfx+'-dot').className = 'st-dot warn';
+    document.getElementById(pfx+'-txt').textContent = label;
+  }
+}
+
+/* ── RSS FEEDS ───────────────────────────── */
+async function _fetchOne(feed) {
+  try {
+    const r = await fetch('/api/feed?url=' + encodeURIComponent(feed.url) + '&count=8');
+    if (!r.ok) return [];
+    const d = await r.json();
+    if (d.status !== 'ok' || !d.items?.length) return [];
+    return d.items.map(it => ({
+      title: (it.title || '').replace(/\s+/g, ' ').trim(),
+      link:  it.link || '#',
+      date:  it.pubDate ? new Date(it.pubDate) : new Date(0),
+      name: feed.name, bg: feed.bg, c: feed.c,
+    }));
+  } catch(e) { return []; }
+}
+
+async function loadFeed(idx) {
+  if (cache[idx].length) { renderFeed(); return; }
+  document.getElementById('news-feed').innerHTML =
+    '<div class="feed-state"><i class="ti ti-loader-2 spin-icon"></i>불러오는 중…</div>';
+  const res  = await Promise.all(FEEDS[idx].map(f => _fetchOne(f)));
+  const flat = res.flat().sort((a,b)=>b.date-a.date).slice(0,22);
+  cache[idx] = flat;
+  renderFeed();
+}
+
+function renderFeed() {
+  const items = cache[curFeed];
+  const box   = document.getElementById('news-feed');
+  if (!items.length) {
+    box.innerHTML = '<div class="feed-state"><i class="ti ti-wifi-off"></i>피드를 불러올 수 없습니다.<br>새로고침을 눌러보세요.</div>';
+    return;
+  }
+  box.innerHTML = '';
+  items.forEach(it => {
+    const el = document.createElement('div');
+    el.className = 'ni';
+    el.innerHTML = `<div class="ni-title">${esc(it.title)}</div>
+      <div class="ni-meta"><span class="ni-src" style="background:${it.bg};color:${it.c}">${esc(it.name)}</span><span>${ago(it.date)}</span></div>`;
+    el.onclick = () => window.open(it.link,'_blank');
+    box.appendChild(el);
+  });
+}
+
+/* ── UI ──────────────────────────────────── */
+function switchFeed(idx) {
+  curFeed = idx;
+  document.querySelectorAll('.ntab').forEach((t,i)=>t.classList.toggle('on',i===idx));
+  loadFeed(idx);
+}
+
+async function reload() {
+  const btn = document.getElementById('rf-btn');
+  btn.classList.add('spin');
+  cache[curFeed] = [];
+  await Promise.all([loadFeed(curFeed), loadStatus()]);
+  btn.classList.remove('spin');
+}
+
+function go(url) { window.open(url,'_blank'); }
+
+function ago(d) {
+  const s = (Date.now() - d.getTime()) / 1000;
+  if (s < 60)    return '방금';
+  if (s < 3600)  return Math.floor(s/60) + '분 전';
+  if (s < 86400) return Math.floor(s/3600) + '시간 전';
+  return Math.floor(s/86400) + '일 전';
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ── desktop: hide mobile-only elements ── */
+document.querySelectorAll('.d-only').forEach(el => {
+  if (window.innerWidth < 768) el.style.display = 'none';
+});
+
+init();
+</script>
+</body>
+</html>
